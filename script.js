@@ -177,7 +177,7 @@ async function loadMainPage() {
     const container = document.getElementById('dynamicContent');
     container.innerHTML = '<div class="loading">Загрузка...</div>';
     try {
-        const response = await fetch('/ethera/README.md');
+        const response = await fetch('./README.md');
         if (response.ok) {
             const markdown = await response.text();
             const html = marked.parse(markdown);
