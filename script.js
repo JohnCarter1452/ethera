@@ -2,7 +2,8 @@
 // Добавлена автоматическая генерация каталога через catalog.json
 
 // Конфигурация
-const dataRoot = '/data/';
+const dataRoot = '/ethera/data/';
+const baseUrl = '/ethera';
 let contentCache = {};           // Кэш загруженных статей { "category/slug": html }
 let searchIndex = [];            // Массив для поиска: { title, url, snippet, category, slug }
 
