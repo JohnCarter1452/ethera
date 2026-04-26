@@ -1,4 +1,5 @@
 // script.js — полная логика для энциклопедии Этеры
+// Добавлена автоматическая генерация каталога через catalog.json
 
 // Конфигурация
 const dataRoot = '/data/';
@@ -41,7 +42,6 @@ function getTitleFromMarkdown(md) {
 
 // Добавление статьи в поисковый индекс
 function addToSearchIndex(category, slug, title, content) {
-    // Ограничим длину сниппета
     const plainText = content.replace(/<[^>]*>/g, '').substring(0, 200);
     searchIndex.push({
         title,
@@ -52,12 +52,84 @@ function addToSearchIndex(category, slug, title, content) {
     });
 }
 
-// ---------- ЗАГРУЗКА И ОТОБРАЖЕНИЕ ----------
+// ---------- ЗАГРУЗКА КАТАЛОГА (список статей) ----------
+async function loadCategoryIndex(category) {
+    const container = document.getElementById('dynamicContent');
+    container.innerHTML = '<div class="loading">Загрузка каталога...</div>';
+    try {
+        // 1. Пытаемся загрузить catalog.json
+        const catalogUrl = `${dataRoot}${category}/catalog.json`;
+        const catalogResp = await fetch(catalogUrl);
+        if (catalogResp.ok) {
+            const files = await catalogResp.json();
+            if (files.length) {
+                let html = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
+                            <div class="list-grid">`;
+                for (let file of files) {
+                    // Убираем расширение .md, если есть
+                    let slug = file.endsWith('.md') ? file.slice(0, -3) : file;
+                    let title = slug.replace(/_/g, ' ');
+                    html += `<div class="list-card" data-category="${category}" data-slug="${slug}">
+                                <h3>${escapeHtml(title)}</h3>
+                            </div>`;
+                }
+                html += `</div>`;
+                container.innerHTML = html;
+                // Обработчики кликов по карточкам
+                document.querySelectorAll('.list-card[data-category][data-slug]').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const cat = card.getAttribute('data-category');
+                        const slug = card.getAttribute('data-slug');
+                        loadContent(cat, slug);
+                    });
+                });
+                history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
+                return;
+            }
+        }
+        
+        // 2. Если нет catalog.json, пробуем README.md
+        const readmeUrl = `${dataRoot}${category}/README.md`;
+        const readmeResp = await fetch(readmeUrl);
+        if (readmeResp.ok) {
+            const markdown = await readmeResp.text();
+            const html = marked.parse(markdown);
+            container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
+                                    <div class="entry-content">${html}</div>`;
+            history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
+            return;
+        }
+        
+        // 3. Иначе _catalog.md
+        const catalogMdUrl = `${dataRoot}${category}/_catalog.md`;
+        const catalogMdResp = await fetch(catalogMdUrl);
+        if (catalogMdResp.ok) {
+            const markdown = await catalogMdResp.text();
+            const html = marked.parse(markdown);
+            container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
+                                    <div class="entry-content">${html}</div>`;
+            history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
+            return;
+        }
+        
+        // 4. Ничего не найдено
+        container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
+                                <div class="entry-content"><p>В этой категории пока нет статей. Вы можете добавить файлы .md в папку <code>data/${category}/</code>.</p>
+                                <p>Для автоматического каталога создайте файл <code>catalog.json</code> со списком имён файлов (без расширения .md).<br>
+                                Или создайте <code>README.md</code> с ручным списком ссылок.</p></div>`;
+        history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div class="entry-header"><h1>Ошибка</h1></div>
+                               <div class="entry-content"><p>Не удалось загрузить каталог категории ${category}.</p></div>`;
+    }
+}
+
+// ---------- ЗАГРУЗКА И ОТОБРАЖЕНИЕ КОНКРЕТНОЙ СТАТЬИ ----------
 async function loadContent(category, slug) {
     const container = document.getElementById('dynamicContent');
     container.innerHTML = '<div class="loading">Загрузка...</div>';
     
-    // Проверка кэша
     const cacheKey = `${category}/${slug}`;
     if (contentCache[cacheKey]) {
         container.innerHTML = contentCache[cacheKey];
@@ -65,52 +137,29 @@ async function loadContent(category, slug) {
     }
     
     try {
-        let url = '';
-        let isIndex = false;
+        // Если запрошен каталог (index) — используем отдельную функцию
         if (slug === 'index') {
-            // Пытаемся загрузить README.md или _catalog.md
-            const readmeUrl = `${dataRoot}${category}/README.md`;
-            const catalogUrl = `${dataRoot}${category}/_catalog.md`;
-            let resp = await fetch(readmeUrl);
-            if (resp.ok) {
-                url = readmeUrl;
-            } else {
-                resp = await fetch(catalogUrl);
-                if (resp.ok) url = catalogUrl;
-                else throw new Error('Нет index-файла');
-            }
-            isIndex = true;
-        } else {
-            url = `${dataRoot}${category}/${slug}.md`;
+            await loadCategoryIndex(category);
+            return;
         }
         
+        // Загрузка обычной статьи
+        const url = `${dataRoot}${category}/${slug}.md`;
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const markdown = await response.text();
         const html = marked.parse(markdown);
+        const title = getTitleFromMarkdown(markdown);
         
-        let finalHtml = '';
-        if (isIndex) {
-            finalHtml = `
-                <div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
-                <div class="entry-content">${html}</div>
-            `;
-        } else {
-            const title = getTitleFromMarkdown(markdown);
-            finalHtml = `
-                <div class="entry-header"><h1>${escapeHtml(title)}</h1></div>
-                <div class="entry-content">${html}</div>
-            `;
-        }
-        
+        const finalHtml = `
+            <div class="entry-header"><h1>${escapeHtml(title)}</h1></div>
+            <div class="entry-content">${html}</div>
+        `;
         container.innerHTML = finalHtml;
         contentCache[cacheKey] = finalHtml;
         
-        // Добавляем в поисковый индекс (если не индексная страница)
-        if (!isIndex) {
-            const title = getTitleFromMarkdown(markdown);
-            addToSearchIndex(category, slug, title, html);
-        }
+        // Добавляем в поисковый индекс
+        addToSearchIndex(category, slug, title, html);
         
         // Обновить URL
         history.pushState({ category, slug }, '', `#${category}/${slug}`);
@@ -155,7 +204,6 @@ async function loadMainPage() {
 
 // ---------- НАВИГАЦИЯ ----------
 function initNavigation() {
-    // Все ссылки с data-category и data-slug
     const links = document.querySelectorAll('.nav-list a');
     links.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -167,14 +215,12 @@ function initNavigation() {
             } else {
                 loadMainPage();
             }
-            // Закрываем меню на мобильных
             if (window.innerWidth <= 800) {
                 document.getElementById('sidebar').classList.remove('open');
             }
         });
     });
     
-    // Ссылка в логотипе
     const homeLink = document.getElementById('homeLink');
     if (homeLink) {
         homeLink.addEventListener('click', (e) => {
@@ -218,19 +264,13 @@ async function performSearch(query) {
     const container = document.getElementById('dynamicContent');
     container.innerHTML = '<div class="loading">Поиск...</div>';
     
-    // Если поисковый индекс пуст — загружаем все статьи (можно в фоне, но здесь сделаем простую загрузку по мере необходимости)
-    // Для демонстрации, если индекс пуст, предложим пользователю просканировать сайт
     if (searchIndex.length === 0) {
-        // Загружаем список статей из специального файла (упрощённо: предложим пользователю вручную создать список)
-        // Но можно сделать фоновую загрузку всех статей по известной структуре.
-        // Сделаем так: попробуем загрузить предопределённый файл `search_index.json`
         try {
             const resp = await fetch('/search_index.json');
             if (resp.ok) {
                 const items = await resp.json();
                 searchIndex.push(...items);
             } else {
-                // Заглушка: показываем сообщение
                 container.innerHTML = `<div class="entry-header"><h1>Поиск</h1></div>
                                        <div class="entry-content"><p>Индекс поиска ещё не создан. Пожалуйста, создайте файл <code>search_index.json</code> в корне сайта со списком статей.</p>
                                        <p>Формат: <code>[{"title":"Название","url":"#категория/статья","snippet":"..."}]</code></p></div>`;
@@ -268,7 +308,6 @@ async function performSearch(query) {
     html += `</div>`;
     container.innerHTML = html;
     
-    // Добавляем обработчики клика на карточки результатов
     document.querySelectorAll('.list-card[data-url]').forEach(card => {
         card.addEventListener('click', () => {
             const url = card.getAttribute('data-url');
@@ -280,7 +319,6 @@ async function performSearch(query) {
     });
 }
 
-// Вспомогательная функция для экранирования HTML
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -306,7 +344,6 @@ function initMobileMenu() {
             sidebar.classList.remove('open');
         });
     }
-    // Закрытие при клике вне меню
     document.addEventListener('click', (e) => {
         if (window.innerWidth <= 800) {
             if (sidebar && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
