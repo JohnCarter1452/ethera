@@ -1,0 +1,348 @@
+/* ---------- RESET & GLOBAL ---------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background: #0a0c12;
+    color: #e2dfe6;
+    line-height: 1.5;
+    scroll-behavior: smooth;
+}
+
+/* ---------- TYPOGRAPHY ---------- */
+h1, h2, h3, h4, .logo, .sidebar h2, .entry-header h1, .nav-category h3 {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* ---------- LINKS ---------- */
+a {
+    text-decoration: none;
+    color: #58a6ff;
+    transition: color 0.2s, text-shadow 0.2s;
+}
+
+a:hover {
+    color: #d4af37;
+    text-shadow: 0 0 4px rgba(212, 175, 55, 0.5);
+}
+
+/* ---------- LAYOUT ---------- */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar {
+    width: 280px;
+    background: #121017;
+    border-right: 1px solid #2a2533;
+    padding: 2rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.sidebar h2 {
+    font-size: 1.6rem;
+    color: #d4af37;
+    margin-bottom: 2rem;
+    border-left: 3px solid #d4af37;
+    padding-left: 1rem;
+}
+
+.nav-category {
+    margin-bottom: 1.8rem;
+}
+
+.nav-category h3 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #8e869e;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+}
+
+.nav-list {
+    list-style: none;
+    padding-left: 0.5rem;
+}
+
+.nav-list li {
+    margin-bottom: 0.4rem;
+}
+
+.nav-list a {
+    color: #cbc3d4;
+    font-size: 0.95rem;
+    display: block;
+    padding: 0.2rem 0;
+    transition: all 0.2s;
+}
+
+.nav-list a:hover {
+    color: #d4af37;
+    padding-left: 0.3rem;
+    text-shadow: 0 0 3px rgba(212, 175, 55, 0.3);
+}
+
+/* ---------- MAIN CONTENT ---------- */
+.main-content {
+    flex: 1;
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+}
+
+/* ---------- TOP HEADER (шапка) ---------- */
+.top-header {
+    background: rgba(10, 12, 18, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #2a2533;
+    padding: 0.8rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    margin: -2rem -2rem 2rem -2rem;
+    width: calc(100% + 4rem);
+}
+
+.logo h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #d4af37, #58a6ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Поиск */
+.search-box {
+    position: relative;
+    width: 260px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    background: #1e1926;
+    border: 1px solid #3a3347;
+    border-radius: 40px;
+    color: #e2dfe6;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.search-box::before {
+    content: "🔍";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* ---------- КОНТЕНТ СТАТЕЙ ---------- */
+.entry-header {
+    border-bottom: 2px solid #2a2533;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.entry-header h1 {
+    font-size: 2.4rem;
+    color: #d4af37;
+}
+
+.entry-content {
+    font-size: 1.05rem;
+    max-width: 1000px;
+}
+
+.entry-content p {
+    margin: 1rem 0;
+}
+
+.entry-content h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    margin-top: 1.5rem;
+    color: #58a6ff;
+}
+
+.entry-content h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    margin-top: 1.2rem;
+    color: #cbc3d4;
+}
+
+/* Блоки с цитатами / стат-блоки */
+.stat-block {
+    background: #16121e;
+    padding: 1rem;
+    border-left: 4px solid #d4af37;
+    margin: 1.5rem 0;
+    font-family: monospace;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border-radius: 0 8px 8px 0;
+}
+
+/* Сетка для карточек (каталоги) */
+.list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+}
+
+.list-card {
+    background: #121017;
+    border: 1px solid #2a2533;
+    padding: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.list-card:hover {
+    border-color: #d4af37;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.15);
+}
+
+.list-card h3 {
+    color: #d4af37;
+    margin-bottom: 0.3rem;
+    font-family: 'Cinzel', serif;
+}
+
+/* ---------- КНОПКИ (общие) ---------- */
+.btn {
+    background: #2a2533;
+    border: 1px solid #5a4a6e;
+    color: #e2dfe6;
+    padding: 0.5rem 1rem;
+    border-radius: 32px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    transition: all 0.2s;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn:hover {
+    background: #3a3347;
+    border-color: #d4af37;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+    color: #d4af37;
+}
+
+/* ---------- ЗАГРУЗКА ---------- */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #58a6ff;
+    font-family: 'Cinzel', serif;
+}
+
+/* ---------- FOOTER ---------- */
+footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #2a2533;
+    font-size: 0.8rem;
+    color: #6a627c;
+}
+
+/* ---------- МОБИЛЬНОЕ МЕНЮ ---------- */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #d4af37;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+@media (max-width: 800px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        width: 280px;
+        z-index: 1050;
+        background: #0f0d17;
+        box-shadow: 2px 0 30px rgba(0,0,0,0.8);
+        height: 100%;
+        transition: transform 0.25s ease-out;
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .menu-toggle {
+        display: block;
+    }
+    .main-content {
+        padding: 1rem;
+    }
+    .top-header {
+        margin: -1rem -1rem 1rem -1rem;
+        padding: 0.6rem 1rem;
+        width: calc(100% + 2rem);
+    }
+    .logo h1 {
+        font-size: 1.2rem;
+    }
+    .search-box {
+        width: 160px;
+    }
+    .entry-header h1 {
+        font-size: 1.8rem;
+    }
+    .list-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- СВЕЧЕНИЯ ДЛЯ КАРТОЧЕК И АКЦЕНТОВ ---------- */
+.card-glow {
+    box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+}
+
+button, .btn, .list-card {
+    transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #1e1926;
+}
+::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 4px;
+}
