@@ -4,37 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Хроники Этеры — энциклопедия мира</title>
-    <!-- Подключаем шрифты Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Библиотека marked для рендеринга Markdown (будет использоваться в script.js) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        /* ---------- RESET & GLOBAL ---------- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Open Sans', sans-serif;
             background: #0a0c12;
             color: #e2dfe6;
             line-height: 1.5;
         }
-
-        /* Плавный скролл */
         html {
             scroll-behavior: smooth;
         }
-
-        /* ---------- LAYOUT ---------- */
         .app-container {
             display: flex;
             min-height: 100vh;
         }
-
-        /* Боковое меню */
         .sidebar {
             width: 280px;
             background: #121017;
@@ -47,8 +37,6 @@
             transition: transform 0.3s ease;
             z-index: 10;
         }
-
-        /* Скрытие меню на мобильных по умолчанию – управляется через JS */
         @media (max-width: 800px) {
             .sidebar {
                 position: fixed;
@@ -57,23 +45,13 @@
                 transform: translateX(-100%);
                 width: 280px;
                 z-index: 1000;
-                height: 100%;
                 background: #0f0d17;
                 box-shadow: 2px 0 20px rgba(0,0,0,0.8);
             }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-            .menu-toggle {
-                display: block;
-            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .menu-toggle { display: block; }
         }
-
-        /* Шапка сайта (верхний колонтитул) */
         .top-header {
             background: #0a0c12;
             border-bottom: 1px solid #2a2533;
@@ -87,23 +65,16 @@
             backdrop-filter: blur(8px);
             background: rgba(10,12,18,0.9);
         }
-
         .logo h1 {
             font-family: 'Cinzel', serif;
             font-size: 1.6rem;
             font-weight: 700;
             background: linear-gradient(135deg, #d4af37, #7bc3f0);
-            -webkit-background-clip: text;
             background-clip: text;
+            -webkit-background-clip: text;
             color: transparent;
-            letter-spacing: 1px;
         }
-
-        .logo a {
-            text-decoration: none;
-        }
-
-        /* Кнопка бургер */
+        .logo a { text-decoration: none; }
         .menu-toggle {
             display: none;
             background: none;
@@ -112,19 +83,10 @@
             font-size: 1.8rem;
             cursor: pointer;
         }
-
-        /* Область основного контента */
         .main-content {
             flex: 1;
             padding: 2rem 2.5rem;
             overflow-y: auto;
-        }
-
-        /* Поиск */
-        .search-wrapper {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 1.5rem;
         }
         .search-box {
             position: relative;
@@ -138,12 +100,10 @@
             border-radius: 40px;
             color: #e2dfe6;
             font-family: inherit;
-            transition: 0.2s;
         }
         .search-box input:focus {
             outline: none;
             border-color: #d4af37;
-            box-shadow: 0 0 5px rgba(212,175,55,0.3);
         }
         .search-box::before {
             content: "🔍";
@@ -151,11 +111,8 @@
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.9rem;
             opacity: 0.7;
         }
-
-        /* Боковое меню – стили */
         .sidebar h2 {
             font-family: 'Cinzel', serif;
             font-size: 1.5rem;
@@ -164,39 +121,27 @@
             border-left: 3px solid #d4af37;
             padding-left: 1rem;
         }
-
-        .nav-category {
-            margin-bottom: 1.8rem;
-        }
         .nav-category h3 {
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: #8e869e;
             margin-bottom: 0.8rem;
-            font-weight: 500;
         }
         .nav-list {
             list-style: none;
             padding-left: 0.5rem;
         }
-        .nav-list li {
-            margin-bottom: 0.4rem;
-        }
+        .nav-list li { margin-bottom: 0.4rem; }
         .nav-list a {
             color: #cbc3d4;
             text-decoration: none;
             font-size: 0.95rem;
-            transition: 0.2s;
             display: block;
             padding: 0.2rem 0;
+            transition: 0.2s;
         }
-        .nav-list a:hover {
-            color: #d4af37;
-            padding-left: 0.3rem;
-        }
-
-        /* Контентная область */
+        .nav-list a:hover { color: #d4af37; padding-left: 0.3rem; }
         .entry-header {
             border-bottom: 2px solid #2a2533;
             margin-bottom: 1.5rem;
@@ -205,27 +150,15 @@
         .entry-header h1 {
             font-family: 'Cinzel', serif;
             font-size: 2.4rem;
-            font-weight: 600;
             color: #d4af37;
         }
-        .entry-content {
-            font-size: 1.05rem;
-            max-width: 1000px;
-        }
-        .entry-content p {
-            margin: 1rem 0;
-        }
+        .entry-content { font-size: 1.05rem; max-width: 1000px; }
+        .entry-content p { margin: 1rem 0; }
         .entry-content h2 {
             font-family: 'Cinzel', serif;
             font-size: 1.8rem;
-            margin-top: 1.5rem;
             color: #7bc3f0;
-        }
-        .entry-content h3 {
-            font-family: 'Cinzel', serif;
-            font-size: 1.4rem;
-            margin-top: 1.2rem;
-            color: #cbc3d4;
+            margin-top: 1.5rem;
         }
         .stat-block {
             background: #16121e;
@@ -252,18 +185,8 @@
             border-color: #d4af37;
             transform: translateY(-3px);
         }
-        .list-card h3 {
-            color: #d4af37;
-            margin-bottom: 0.3rem;
-        }
-
-        /* Загрузка */
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #7bc3f0;
-        }
-
+        .list-card h3 { color: #d4af37; margin-bottom: 0.3rem; }
+        .loading { text-align: center; padding: 2rem; color: #7bc3f0; }
         footer {
             text-align: center;
             margin-top: 3rem;
@@ -276,7 +199,6 @@
 </head>
 <body>
 <div class="app-container">
-    <!-- Боковое меню -->
     <aside class="sidebar" id="sidebar">
         <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
             <button id="closeSidebarBtn" style="background:none; border:none; color:#d4af37; font-size:1.5rem; cursor:pointer;">&times;</button>
@@ -316,247 +238,178 @@
         </div>
     </aside>
 
-    <!-- Основной контент -->
     <main class="main-content">
         <div class="top-header">
-            <div class="logo">
-                <h1><a href="#" id="homeLink" style="text-decoration:none; color:inherit;">⚙️ Хроники Этеры</a></h1>
-            </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Поиск по энциклопедии..." autocomplete="off">
-            </div>
+            <div class="logo"><h1><a href="#" id="homeLink">⚙️ Хроники Этеры</a></h1></div>
+            <div class="search-box"><input type="text" id="searchInput" placeholder="Поиск по энциклопедии..." autocomplete="off"></div>
             <button class="menu-toggle" id="menuToggle">☰</button>
         </div>
-
         <div id="dynamicContent">
-            <!-- Сюда будет загружаться содержимое через JS -->
             <div class="entry-header"><h1>Добро пожаловать в Этеру</h1></div>
             <div class="entry-content">
                 <p>Этера — планета пара и эфира, где цивилизация строится на наследии Аэтерных Архитекторов. Здесь нет магии, но есть древние технологии, уникальные руды и смертельные тайны.</p>
-                <div class="stat-block">
-                    «Эфир не прощает слабости. Он ждёт тех, кто осмелится им управлять.» — Архивариус-Отступник
-                </div>
+                <div class="stat-block">«Эфир не прощает слабости. Он ждёт тех, кто осмелится им управлять.» — Архивариус-Отступник</div>
                 <p>Используйте меню для навигации по энциклопедии. Все данные загружаются из Markdown-файлов, вы можете свободно редактировать их в папке /data/.</p>
             </div>
         </div>
-        <footer>
-            <p>Хроники Этеры — энциклопедия настольной ролевой игры. Контент распространяется под лицензией CC BY-SA 4.0.</p>
-        </footer>
+        <footer>Хроники Этеры — энциклопедия настольной ролевой игры. Контент распространяется под лицензией CC BY-SA 4.0.</footer>
     </main>
 </div>
 
 <script>
-    // Конфигурация: где лежат файлы .md относительно корня сайта
     const dataRoot = '/data/';
-    // Карта для поиска (будет заполняться динамически)
+    let contentCache = {};
     let searchIndex = [];
 
-    // Функция для загрузки и отображения контента по категории и слагу
-    async function loadContent(category, slug) {
-        const container = document.getElementById('dynamicContent');
-        container.innerHTML = '<div class="loading">Загрузка...</div>';
-        try {
-            // Страница-каталог (отображает список файлов в категории)
-            if (slug === 'index') {
-                await loadCategoryIndex(category);
-                return;
-            }
-            // Обычная статья
-            const url = `${dataRoot}${category}/${slug}.md`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const markdown = await response.text();
-            const html = marked.parse(markdown);
-            container.innerHTML = `
-                <div class="entry-header"><h1>${getTitleFromMarkdown(markdown)}</h1></div>
-                <div class="entry-content">${html}</div>
-            `;
-            // Обновляем URL в адресной строке (без перезагрузки)
-            history.pushState({ category, slug }, '', `#${category}/${slug}`);
-        } catch (err) {
-            console.error(err);
-            container.innerHTML = `<div class="entry-header"><h1>Ошибка</h1></div>
-                                    <div class="entry-content"><p>Не удалось загрузить страницу. Убедитесь, что файл существует: ${category}/${slug}.md</p></div>`;
-        }
+    function getCategoryTitleRu(cat) {
+        const titles = {
+            'classes':'Классы','peoples':'Народы','factions':'Фракции','geography':'География',
+            'artifacts':'Артефакты','bestiary':'Бестиарий','lore':'Лор и история',
+            'religions':'Религии','rules':'Правила','rules_ether':'Эфир','gm_tools':'Инструменты мастера','main':'Главная'
+        };
+        return titles[cat] || cat;
     }
-
-    // Загрузка списка статей в категории (динамический каталог)
-    async function loadCategoryIndex(category) {
-        const container = document.getElementById('dynamicContent');
-        container.innerHTML = '<div class="loading">Загрузка каталога...</div>';
-        try {
-            // Пытаемся получить список файлов через специальный эндпоинт? Но у нас статические файлы.
-            // Альтернатива: в каждой папке должен быть файл index.md с ручным списком ссылок.
-            // Для удобства мы будем пытаться загрузить index.md из папки категории.
-            const url = `${dataRoot}${category}/_catalog.md`; // можно создать специальный файл с каталогом
-            const fallback = await fetch(url);
-            if (fallback.ok) {
-                const markdown = await fallback.text();
-                const html = marked.parse(markdown);
-                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
-                                        <div class="entry-content">${html}</div>`;
-                history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
-                return;
-            }
-            // Если нет _catalog.md, пробуем загрузить стандартный README.md
-            const readmeUrl = `${dataRoot}${category}/README.md`;
-            const readmeRes = await fetch(readmeUrl);
-            if (readmeRes.ok) {
-                const markdown = await readmeRes.text();
-                const html = marked.parse(markdown);
-                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
-                                        <div class="entry-content">${html}</div>`;
-                history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
-                return;
-            }
-            // Если ничего нет – выводим заглушку
-            container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
-                                    <div class="entry-content"><p>В этой категории пока нет статей. Вы можете добавить файлы .md в папку <code>data/${category}/</code>.</p>
-                                    <p>Для создания каталога добавьте файл <code>_catalog.md</code> или <code>README.md</code> с ручным списком ссылок.</p></div>`;
-            history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
-        } catch (err) {
-            container.innerHTML = `<div class="entry-header"><h1>Ошибка</h1></div><div class="entry-content"><p>Не удалось загрузить каталог.</p></div>`;
-        }
-    }
-
-    // Вспомогательные функции
     function getTitleFromMarkdown(md) {
         const match = md.match(/^#\s+(.*)/m);
         return match ? match[1] : 'Без названия';
     }
-
-    function getCategoryTitleRu(cat) {
-        const titles = {
-            'classes': 'Классы',
-            'peoples': 'Народы',
-            'factions': 'Фракции',
-            'geography': 'География',
-            'artifacts': 'Артефакты',
-            'bestiary': 'Бестиарий',
-            'lore': 'Лор и история',
-            'religions': 'Религии',
-            'rules': 'Правила',
-            'rules_ether': 'Эфир',
-            'gm_tools': 'Инструменты мастера',
-            'main': 'Главная'
-        };
-        return titles[cat] || cat;
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
     }
 
-    // Навигация по кликам в меню
-    function initNavigation() {
-        const links = document.querySelectorAll('.nav-list a');
-        links.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const category = link.getAttribute('data-category');
-                const slug = link.getAttribute('data-slug');
-                if (category && slug) {
-                    loadContent(category, slug);
-                } else {
-                    // Если ссылка на главную (без атрибутов) – загружаем приветствие
-                    loadMainPage();
+    async function loadCategoryIndex(category) {
+        const container = document.getElementById('dynamicContent');
+        container.innerHTML = '<div class="loading">Загрузка каталога...</div>';
+        try {
+            // 1. catalog.json
+            const catUrl = `${dataRoot}${category}/catalog.json`;
+            const resp = await fetch(catUrl);
+            if (resp.ok) {
+                const files = await resp.json();
+                if (files.length) {
+                    let html = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div><div class="list-grid">`;
+                    for (let file of files) {
+                        let slug = file.endsWith('.md') ? file.slice(0,-3) : file;
+                        let title = slug.replace(/_/g, ' ');
+                        html += `<div class="list-card" data-category="${category}" data-slug="${slug}"><h3>${escapeHtml(title)}</h3></div>`;
+                    }
+                    html += `</div>`;
+                    container.innerHTML = html;
+                    document.querySelectorAll('.list-card[data-category][data-slug]').forEach(card => {
+                        card.addEventListener('click', () => loadContent(card.dataset.category, card.dataset.slug));
+                    });
+                    history.pushState({ category, slug:'index' }, '', `#${category}/index`);
+                    return;
                 }
-                // Закрываем меню на мобильных после клика
-                if (window.innerWidth <= 800) {
-                    document.getElementById('sidebar').classList.remove('open');
-                }
-            });
-        });
-        // Кнопка "Хроники Этеры" в шапке
-        const homeLink = document.getElementById('homeLink');
-        if (homeLink) {
-            homeLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                loadMainPage();
-            });
+            }
+            // 2. README.md
+            const readmeUrl = `${dataRoot}${category}/README.md`;
+            const readmeResp = await fetch(readmeUrl);
+            if (readmeResp.ok) {
+                const md = await readmeResp.text();
+                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div><div class="entry-content">${marked.parse(md)}</div>`;
+                history.pushState({ category, slug:'index' }, '', `#${category}/index`);
+                return;
+            }
+            // 3. _catalog.md
+            const catMdUrl = `${dataRoot}${category}/_catalog.md`;
+            const catMdResp = await fetch(catMdUrl);
+            if (catMdResp.ok) {
+                const md = await catMdResp.text();
+                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div><div class="entry-content">${marked.parse(md)}</div>`;
+                history.pushState({ category, slug:'index' }, '', `#${category}/index`);
+                return;
+            }
+            container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div><div class="entry-content"><p>В этой категории пока нет статей. Добавьте файлы <code>${category}/catalog.json</code> или <code>README.md</code>.</p></div>`;
+            history.pushState({ category, slug:'index' }, '', `#${category}/index`);
+        } catch(e) {
+            container.innerHTML = `<div class="entry-header"><h1>Ошибка</h1></div><div class="entry-content"><p>Не удалось загрузить каталог.</p></div>`;
         }
     }
 
-    // Загрузка главной страницы (приветствие)
+    async function loadContent(category, slug) {
+        const container = document.getElementById('dynamicContent');
+        container.innerHTML = '<div class="loading">Загрузка...</div>';
+        const cacheKey = `${category}/${slug}`;
+        if (contentCache[cacheKey]) { container.innerHTML = contentCache[cacheKey]; return; }
+        if (slug === 'index') { await loadCategoryIndex(category); return; }
+        try {
+            const url = `${dataRoot}${category}/${slug}.md`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const md = await resp.text();
+            const html = marked.parse(md);
+            const title = getTitleFromMarkdown(md);
+            const finalHtml = `<div class="entry-header"><h1>${escapeHtml(title)}</h1></div><div class="entry-content">${html}</div>`;
+            container.innerHTML = finalHtml;
+            contentCache[cacheKey] = finalHtml;
+            history.pushState({ category, slug }, '', `#${category}/${slug}`);
+        } catch(err) {
+            container.innerHTML = `<div class="entry-header"><h1>Ошибка</h1></div><div class="entry-content"><p>Файл не найден: ${category}/${slug}.md</p></div>`;
+        }
+    }
+
     async function loadMainPage() {
         const container = document.getElementById('dynamicContent');
         container.innerHTML = '<div class="loading">Загрузка...</div>';
         try {
-            const response = await fetch('/README.md');
-            if (response.ok) {
-                const markdown = await response.text();
-                const html = marked.parse(markdown);
-                container.innerHTML = `
-                    <div class="entry-header"><h1>Хроники Этеры</h1></div>
-                    <div class="entry-content">${html}</div>
-                `;
+            const resp = await fetch('/README.md');
+            if (resp.ok) {
+                const md = await resp.text();
+                container.innerHTML = `<div class="entry-header"><h1>Хроники Этеры</h1></div><div class="entry-content">${marked.parse(md)}</div>`;
             } else {
-                // Запасной контент
-                container.innerHTML = `
-                    <div class="entry-header"><h1>Добро пожаловать в Этеру</h1></div>
-                    <div class="entry-content"><p>Этера — планета пара и эфира, где цивилизация строится на наследии Аэтерных Архитекторов. Здесь нет магии, но есть древние технологии, уникальные руды и смертельные тайны.</p>
-                    <div class="stat-block">«Эфир не прощает слабости. Он ждёт тех, кто осмелится им управлять.» — Архивариус-Отступник</div>
-                    <p>Используйте меню для навигации по энциклопедии. Все данные загружаются из Markdown-файлов, вы можете свободно редактировать их в папке /data/.</p></div>
-                `;
+                container.innerHTML = `<div class="entry-header"><h1>Добро пожаловать в Этеру</h1></div><div class="entry-content"><p>Этера — планета пара и эфира... Используйте меню для навигации.</p></div>`;
             }
-            history.pushState({ category: 'main', slug: 'home' }, '', '#');
-        } catch (err) {
-            container.innerHTML = `<div class="entry-header"><h1>Приветствие</h1></div><div class="entry-content"><p>Добро пожаловать в энциклопедию Этеры. Для начала работы загрузите файлы в папку data.</p></div>`;
-        }
+            history.pushState({}, '', '#');
+        } catch(e) { container.innerHTML = '<div class="entry-header"><h1>Приветствие</h1></div><div class="entry-content"><p>Добро пожаловать в энциклопедию Этеры.</p></div>'; }
     }
 
-    // Обработка URL при загрузке
     function handleRoute() {
         const hash = window.location.hash.slice(1);
-        if (!hash || hash === '') {
-            loadMainPage();
-            return;
-        }
+        if (!hash || hash === '') { loadMainPage(); return; }
         const parts = hash.split('/');
-        if (parts.length >= 2) {
-            const category = parts[0];
-            const slug = parts.slice(1).join('/');
-            loadContent(category, slug);
-        } else {
-            loadMainPage();
-        }
+        if (parts.length >= 2) loadContent(parts[0], parts.slice(1).join('/'));
+        else loadMainPage();
     }
 
-    // Поиск (упрощённая версия: просто открываем поисковую страницу, позже можно улучшить)
+    function initNavigation() {
+        document.querySelectorAll('.nav-list a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const category = link.getAttribute('data-category');
+                const slug = link.getAttribute('data-slug');
+                if (category && slug) loadContent(category, slug);
+                else loadMainPage();
+                if (window.innerWidth <= 800) document.getElementById('sidebar').classList.remove('open');
+            });
+        });
+        document.getElementById('homeLink')?.addEventListener('click', (e) => { e.preventDefault(); loadMainPage(); });
+    }
+
     function setupSearch() {
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchInput.value.trim();
-                if (query === '') return;
-                // Перенаправляем на страницу поиска (можно сделать отдельную)
-                // Для простоты – показываем уведомление
-                alert(`Поиск по "${query}" будет реализован в следующей версии. Пока что используйте навигацию по меню.`);
-                // В будущем здесь можно вывести результаты поиска
-            }
+        const input = document.getElementById('searchInput');
+        input.addEventListener('keypress', async (e) => {
+            if (e.key !== 'Enter') return;
+            const query = input.value.trim();
+            if (!query) return;
+            // простой поиск по заголовкам – для демо
+            alert(`Поиск пока не реализован. Пожалуйста, используйте навигацию по меню.`);
         });
     }
 
-    // Мобильное меню
     function initMobileMenu() {
-        const menuToggle = document.getElementById('menuToggle');
+        const toggle = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
         const closeBtn = document.getElementById('closeSidebarBtn');
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.add('open');
-        });
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-            });
-        }
-        // Закрыть при клике вне меню
+        toggle.addEventListener('click', () => sidebar.classList.add('open'));
+        if(closeBtn) closeBtn.addEventListener('click', () => sidebar.classList.remove('open'));
         document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 800) {
-                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-                    sidebar.classList.remove('open');
-                }
-            }
+            if (window.innerWidth <= 800 && sidebar && !sidebar.contains(e.target) && !toggle.contains(e.target))
+                sidebar.classList.remove('open');
         });
     }
 
-    // Инициализация
     function init() {
         initNavigation();
         initMobileMenu();
@@ -564,7 +417,6 @@
         handleRoute();
         window.addEventListener('popstate', handleRoute);
     }
-
     init();
 </script>
 </body>
