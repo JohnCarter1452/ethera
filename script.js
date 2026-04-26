@@ -172,12 +172,13 @@ async function loadContent(category, slug) {
     }
 }
 
-// Загрузка главной страницы (README.md в корне или приветствие)
+// Загрузка главной страницы (README.md в корне сайта)
 async function loadMainPage() {
     const container = document.getElementById('dynamicContent');
     container.innerHTML = '<div class="loading">Загрузка...</div>';
     try {
-        const response = await fetch('./README.md');
+        // Используем baseUrl для корректного пути (например, /ethera/README.md)
+        const response = await fetch(`${baseUrl}/README.md`);
         if (response.ok) {
             const markdown = await response.text();
             const html = marked.parse(markdown);
@@ -186,7 +187,7 @@ async function loadMainPage() {
                 <div class="entry-content">${html}</div>
             `;
         } else {
-            // Запасной контент
+            // Запасной контент (если README.md не найден)
             container.innerHTML = `
                 <div class="entry-header"><h1>Добро пожаловать в Этеру</h1></div>
                 <div class="entry-content">
