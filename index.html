@@ -5,63 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Хроники Этеры — энциклопедия мира</title>
     
-    <!-- Подключение кастомных шрифтов через myfonts.ru -->
+    <!-- Шрифты (по возможности замените на локальные) -->
     <link href="https://myfonts.ru/myfonts?fonts=algeria-two" rel="stylesheet" type="text/css">
     <link href="https://myfonts.ru/myfonts?fonts=inkulinati" rel="stylesheet" type="text/css">
-    
-    <!-- Шрифты Google Fonts (резервные) -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome 6 (иконки) -->
+    <!-- Font Awesome (иконки) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Marked -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
-        /* ---------- ОСНОВНЫЕ ПЕРЕМЕННЫЕ И СБРОС ---------- */
+        /* ---------- ПЕРЕМЕННЫЕ ЭФИРНОЙ ГАММЫ ---------- */
+        :root {
+            --ether-primary: #58a6ff;      /* основной эфирно-голубой */
+            --ether-secondary: #7bc3f0;    /* мягкий эфирный свет */
+            --ether-dark: #2b6ed7;         /* тёмный для посещённых ссылок */
+            --ether-glow: rgba(88, 166, 255, 0.4);
+            --ether-glow-strong: rgba(88, 166, 255, 0.15);
+            --bg-dark: #0a0c12;
+            --bg-sidebar: rgba(18, 23, 27, 0.85);
+        }
+        
+        /* ---------- СБРОС И ОБЩИЕ СТИЛИ ---------- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
-            /* Основной шрифт для всего текста – Inkulinati */
             font-family: 'Inkulinati', 'Open Sans', sans-serif;
-            background: #0a0c12;
+            background: var(--bg-dark);
             color: #e2dfe6;
             line-height: 1.5;
         }
-        
-        /* ---------- ШРИФТЫ ДЛЯ ЗАГОЛОВКОВ ---------- */
-        h1, h2, h3, h4,
-        .logo h1, .sidebar h2, .entry-header h1,
-        .nav-category h3, .list-card h3,
-        .premium-logo, .image-logo span,
-        .loading {
+        h1, h2, h3, h4, .logo h1, .sidebar h2, .entry-header h1,
+        .nav-category h3, .list-card h3, .loading {
             font-family: 'Algeria Two', 'Cinzel', serif;
             font-weight: 600;
             letter-spacing: 0.02em;
+            color: var(--ether-primary);
+        }
+        .entry-content h2 {
+            color: var(--ether-secondary);
         }
         
-        /* Уточнение для некоторых элементов */
-        .entry-content h2,
-        .entry-content h3 {
-            font-family: 'Algeria Two', 'Cinzel', serif;
-        }
-        
-        /* ---------- LAYOUT ---------- */
+        /* ---------- ОСНОВНОЙ ЛЭЙАУТ ---------- */
         .app-container {
             display: flex;
             min-height: 100vh;
         }
         
-        /* Боковое меню */
+        /* ===== БОКОВАЯ ПАНЕЛЬ ===== */
         .sidebar {
             width: 280px;
-            background: #121017;
-            border-right: 1px solid #2a2533;
-            padding: 1.5rem 1rem;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(42, 37, 51, 0.5);
+            padding: 2rem 1rem;
             position: sticky;
             top: 0;
             height: 100vh;
@@ -69,8 +70,54 @@
             transition: transform 0.3s ease;
             z-index: 10;
         }
+        .sidebar h2 {
+            border-left: 3px solid var(--ether-primary);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .nav-category {
+            margin-bottom: 2rem;
+        }
+        .nav-category h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8e869e;
+            margin-bottom: 1rem;
+            padding-left: 0.5rem;
+            font-weight: 500;
+        }
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-list li {
+            margin-bottom: 0.2rem;
+        }
+        .nav-list a {
+            display: block;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-family: 'Inkulinati', 'Open Sans', sans-serif;
+            font-size: 0.95rem;
+            color: #cbc3d4;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .nav-list a i {
+            width: 1.8rem;
+            font-size: 1.1rem;
+            margin-right: 0.6rem;
+            text-align: center;
+        }
+        .nav-list a:hover {
+            background-color: var(--ether-glow-strong);
+            color: var(--ether-secondary);
+            padding-left: 1.2rem;
+        }
         
-        /* Шапка */
+        /* ---------- ШАПКА ---------- */
         .top-header {
             background: rgba(10,12,18,0.92);
             backdrop-filter: blur(8px);
@@ -85,8 +132,21 @@
             margin: -2rem -2rem 2rem -2rem;
             width: calc(100% + 4rem);
         }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--ether-primary);
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .main-content {
+            flex: 1;
+            padding: 2rem 2.5rem;
+            overflow-y: auto;
+        }
         
-        /* --- ЛОГОТИП КАРТИНКА (вместо текста) --- */
+        /* ---------- ЛОГОТИП ---------- */
         .logo h1 {
             margin: 0;
             line-height: 0;
@@ -97,61 +157,17 @@
             transition: transform 0.2s, filter 0.2s;
         }
         .logo img {
-            height: 70px;          /* подберите под свой логотип */
+            height: 70px;
             width: auto;
             display: block;
             border: none;
         }
         .logo a:hover {
             transform: scale(1.02);
-            filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
+            filter: drop-shadow(0 0 6px var(--ether-glow));
         }
         
-        /* --- ССЫЛКИ (НЕ СИНИЕ И НЕ ФИОЛЕТОВЫЕ) --- */
-        a {
-            color: #d4af37;
-            text-decoration: none;
-            transition: color 0.2s, text-shadow 0.2s;
-        }
-        a:visited {
-            color: #b8942c;
-        }
-        a:hover {
-            color: #ffdf80;
-            text-shadow: 0 0 4px rgba(212, 175, 55, 0.5);
-        }
-        
-        /* Ссылки внутри статей – более изящные */
-        .entry-content a {
-            color: #58a6ff;
-            border-bottom: 1px dotted #58a6ff;
-        }
-        .entry-content a:visited {
-            color: #a67c00;
-            border-bottom-color: #a67c00;
-        }
-        .entry-content a:hover {
-            color: #d4af37;
-            border-bottom-color: #d4af37;
-            text-shadow: none;
-        }
-        
-        /* Остальные стили (меню, контент, адаптив) */
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: #d4af37;
-            font-size: 1.8rem;
-            cursor: pointer;
-        }
-        
-        .main-content {
-            flex: 1;
-            padding: 2rem 2.5rem;
-            overflow-y: auto;
-        }
-        
+        /* ---------- ПОИСК ---------- */
         .search-box {
             position: relative;
             width: 260px;
@@ -168,8 +184,8 @@
         }
         .search-box input:focus {
             outline: none;
-            border-color: #d4af37;
-            box-shadow: 0 0 8px rgba(212,175,55,0.3);
+            border-color: var(--ether-primary);
+            box-shadow: 0 0 8px var(--ether-glow);
         }
         .search-box::before {
             content: "🔍";
@@ -181,59 +197,16 @@
             opacity: 0.7;
         }
         
-        .sidebar h2 {
-            font-family: 'Algeria Two', 'Cinzel', serif;
-            font-size: 1.5rem;
-            color: #d4af37;
-            margin-bottom: 1.5rem;
-            border-left: 3px solid #d4af37;
-            padding-left: 1rem;
-        }
-        
-        .nav-category {
-            margin-bottom: 1.8rem;
-        }
-        .nav-category h3 {
-            font-family: 'Algeria Two', 'Cinzel', serif;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #8e869e;
-            margin-bottom: 0.8rem;
-            font-weight: 500;
-        }
-        .nav-list {
-            list-style: none;
-            padding-left: 0.5rem;
-        }
-        .nav-list li {
-            margin-bottom: 0.4rem;
-        }
-        .nav-list a {
-            font-family: 'Inkulinati', 'Open Sans', sans-serif;
-            color: #cbc3d4;
-            text-decoration: none;
-            font-size: 0.95rem;
-            display: block;
-            padding: 0.2rem 0;
-            transition: 0.2s;
-        }
-        .nav-list a:hover {
-            color: #d4af37;
-            padding-left: 0.3rem;
-        }
-        
+        /* ---------- КОНТЕНТ ---------- */
         .entry-header {
             border-bottom: 2px solid #2a2533;
             margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
         }
         .entry-header h1 {
-            font-family: 'Algeria Two', 'Cinzel', serif;
             font-size: 2.4rem;
-            color: #d4af37;
+            color: var(--ether-primary);
         }
-        
         .entry-content {
             font-size: 1.05rem;
             max-width: 1000px;
@@ -241,27 +214,26 @@
         .entry-content p {
             margin: 1rem 0;
         }
-        .entry-content h2 {
-            font-family: 'Algeria Two', 'Cinzel', serif;
-            font-size: 1.8rem;
-            color: #7bc3f0;
-            margin-top: 1.5rem;
+        .entry-content a {
+            color: var(--ether-primary);
+            border-bottom: 1px dotted var(--ether-primary);
         }
-        .entry-content h3 {
-            font-family: 'Algeria Two', 'Cinzel', serif;
-            font-size: 1.4rem;
-            color: #cbc3d4;
-            margin-top: 1rem;
+        .entry-content a:visited {
+            color: var(--ether-dark);
+            border-bottom-color: var(--ether-dark);
         }
-        
+        .entry-content a:hover {
+            color: var(--ether-secondary);
+            border-bottom-color: var(--ether-secondary);
+            text-shadow: none;
+        }
         .stat-block {
             background: #16121e;
             padding: 1rem;
-            border-left: 4px solid #d4af37;
+            border-left: 4px solid var(--ether-primary);
             margin: 1.5rem 0;
             font-family: monospace;
         }
-        
         .list-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -277,22 +249,19 @@
             transition: 0.2s;
         }
         .list-card:hover {
-            border-color: #d4af37;
+            border-color: var(--ether-primary);
             transform: translateY(-3px);
+            box-shadow: 0 4px 12px var(--ether-glow);
         }
         .list-card h3 {
-            font-family: 'Algeria Two', 'Cinzel', serif;
-            color: #d4af37;
+            color: var(--ether-primary);
             margin-bottom: 0.3rem;
         }
-        
         .loading {
             text-align: center;
             padding: 2rem;
-            color: #7bc3f0;
-            font-family: 'Algeria Two', 'Cinzel', serif;
+            color: var(--ether-secondary);
         }
-        
         footer {
             text-align: center;
             margin-top: 3rem;
@@ -300,9 +269,9 @@
             border-top: 1px solid #2a2533;
             font-size: 0.8rem;
             color: #6a627c;
-            font-family: 'Inkulinati', 'Open Sans', sans-serif;
         }
         
+        /* ---------- АДАПТИВНОСТЬ ---------- */
         @media (max-width: 800px) {
             .sidebar {
                 position: fixed;
@@ -342,40 +311,40 @@
 <div class="app-container">
     <aside class="sidebar" id="sidebar">
         <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
-            <button id="closeSidebarBtn" style="background:none; border:none; color:#d4af37; font-size:1.5rem; cursor:pointer;">&times;</button>
+            <button id="closeSidebarBtn" style="background:none; border:none; color:var(--ether-primary); font-size:1.5rem; cursor:pointer;">&times;</button>
         </div>
         <h2>ЭТЕРА</h2>
         <div class="nav-category">
             <h3>ОСНОВЫ</h3>
             <ul class="nav-list">
-                <li><a href="#" data-category="main" data-slug="home">🏠 О мире</a></li>
-                <li><a href="#" data-category="classes" data-slug="index">⚔️ Классы</a></li>
-                <li><a href="#" data-category="peoples" data-slug="index">🌿 Народы</a></li>
-                <li><a href="#" data-category="factions" data-slug="index">🏛️ Фракции</a></li>
-                <li><a href="#" data-category="geography" data-slug="index">🗺️ География</a></li>
-                <li><a href="#" data-category="artifacts" data-slug="index">✨ Артефакты</a></li>
-                <li><a href="#" data-category="bestiary" data-slug="index">🐉 Бестиарий</a></li>
-                <li><a href="#" data-category="backgrounds" data-slug="index">📜 Предыстории</a></li>
+                <li><a href="#" data-category="main" data-slug="home"><i class="fas fa-globe"></i> О мире</a></li>
+                <li><a href="#" data-category="classes" data-slug="index"><i class="fas fa-fist-raised"></i> Классы</a></li>
+                <li><a href="#" data-category="peoples" data-slug="index"><i class="fas fa-users"></i> Народы</a></li>
+                <li><a href="#" data-category="factions" data-slug="index"><i class="fas fa-flag"></i> Фракции</a></li>
+                <li><a href="#" data-category="geography" data-slug="index"><i class="fas fa-map"></i> География</a></li>
+                <li><a href="#" data-category="artifacts" data-slug="index"><i class="fas fa-gem"></i> Артефакты</a></li>
+                <li><a href="#" data-category="bestiary" data-slug="index"><i class="fas fa-dragon"></i> Бестиарий</a></li>
+                <li><a href="#" data-category="backgrounds" data-slug="index"><i class="fas fa-scroll"></i> Предыстории</a></li>
             </ul>
         </div>
         <div class="nav-category">
             <h3>ЛОР И ИСТОРИЯ</h3>
             <ul class="nav-list">
-                <li><a href="#" data-category="lore" data-slug="index">📖 Хроники</a></li>
-                <li><a href="#" data-category="religions" data-slug="index">🙏 Религии</a></li>
+                <li><a href="#" data-category="lore" data-slug="index"><i class="fas fa-book"></i> Хроники</a></li>
+                <li><a href="#" data-category="religions" data-slug="index"><i class="fas fa-pray"></i> Религии</a></li>
             </ul>
         </div>
         <div class="nav-category">
             <h3>ПРАВИЛА</h3>
             <ul class="nav-list">
-                <li><a href="#" data-category="rules" data-slug="index">⚙️ Механики</a></li>
-                <li><a href="#" data-category="ether_rules" data-slug="index">🌀 Эфир</a></li>
+                <li><a href="#" data-category="rules" data-slug="index"><i class="fas fa-dice-d20"></i> Механики</a></li>
+                <li><a href="#" data-category="ether_rules" data-slug="index"><i class="fas fa-bolt"></i> Эфир</a></li>
             </ul>
         </div>
         <div class="nav-category">
             <h3>ИНСТРУМЕНТЫ</h3>
             <ul class="nav-list">
-                <li><a href="#" data-category="gm_tools" data-slug="index">🎲 Мастеру</a></li>
+                <li><a href="#" data-category="gm_tools" data-slug="index"><i class="fas fa-tools"></i> Мастеру</a></li>
             </ul>
         </div>
     </aside>
@@ -385,7 +354,6 @@
             <div class="logo">
                 <h1>
                     <a href="#" id="homeLink">
-                        <!-- Замените путь на ваш реальный логотип -->
                         <img src="/ethera/images/etherea-logo.png" alt="Хроники Этеры">
                     </a>
                 </h1>
@@ -410,18 +378,20 @@
 </div>
 
 <script>
-    // Конфигурация — обратите внимание на подпапку /ethera/
+    // Конфигурация – пути к данным
     const dataRoot = '/ethera/data/';
+    const baseUrl = '/ethera';
     let contentCache = {};
     let searchIndex = [];
 
     function getCategoryTitleRu(cat) {
         const titles = {
             'classes': 'Классы', 'peoples': 'Народы', 'factions': 'Фракции',
-            'geography': 'География', 'artifacts': 'Артефакты', 'bestiary': 'Бестиарий',
-            'lore': 'Лор и история', 'religions': 'Религии', 'rules': 'Правила механик',
-            'ether_rules': 'Эфир', 'gm_tools': 'Инструменты мастера',
-            'backgrounds': 'Предыстории', 'main': 'Главная'
+            'geography': 'География', 'artifacts': 'Артефакты', 'equipment': 'Снаряжение',
+            'backgrounds': 'Предыстории', 'bestiary': 'Бестиарий',
+            'lore': 'Лор и история', 'religions': 'Религии',
+            'rules': 'Правила', 'ether_rules': 'Эфир', 'gm_tools': 'Инструменты мастера',
+            'main': 'Главная'
         };
         return titles[cat] || cat;
     }
@@ -465,10 +435,16 @@
             const readmeUrl = `${dataRoot}${category}/README.md`;
             const readmeResp = await fetch(readmeUrl);
             if (readmeResp.ok) {
-                const md = await readmeResp.text();
-                const html = marked.parse(md);
-                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
-                                        <div class="entry-content">${html}</div>`;
+                const html = marked.parse(await readmeResp.text());
+                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div><div class="entry-content">${html}</div>`;
+                history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
+                return;
+            }
+            const catalogMdUrl = `${dataRoot}${category}/_catalog.md`;
+            const catalogMdResp = await fetch(catalogMdUrl);
+            if (catalogMdResp.ok) {
+                const html = marked.parse(await catalogMdResp.text());
+                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div><div class="entry-content">${html}</div>`;
                 history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
                 return;
             }
@@ -513,13 +489,12 @@
         const container = document.getElementById('dynamicContent');
         container.innerHTML = '<div class="loading">Загрузка...</div>';
         try {
-            const resp = await fetch('/ethera/README.md');
+            const resp = await fetch(`${baseUrl}/README.md`);
             if (resp.ok) {
-                const md = await resp.text();
-                const html = marked.parse(md);
+                const html = marked.parse(await resp.text());
                 container.innerHTML = `<div class="entry-header"><h1>Хроники Этеры</h1></div><div class="entry-content">${html}</div>`;
             } else {
-                container.innerHTML = `<div class="entry-header"><h1>Добро пожаловать</h1></div><div class="entry-content"><p>Используйте меню для навигации по энциклопедии.</p></div>`;
+                container.innerHTML = `<div class="entry-header"><h1>Добро пожаловать</h1></div><div class="entry-content"><p>Добро пожаловать в Этеру.</p></div>`;
             }
             history.pushState({}, '', '#');
         } catch (err) {
@@ -535,9 +510,7 @@
         }
         const parts = hash.split('/');
         if (parts.length >= 2) {
-            const category = parts[0];
-            const slug = parts.slice(1).join('/');
-            loadContent(category, slug);
+            loadContent(parts[0], parts.slice(1).join('/'));
         } else {
             loadMainPage();
         }
@@ -581,7 +554,7 @@
             if (e.key !== 'Enter') return;
             const query = input.value.trim();
             if (!query) return;
-            alert('Поиск пока упрощён – используйте навигацию. В будущем будет полноценный поиск.');
+            alert('Поиск пока упрощён – используйте навигацию.');
         });
     }
 
