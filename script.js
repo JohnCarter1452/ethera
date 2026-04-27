@@ -356,3 +356,22 @@ function initMobileMenu() {
         }
     });
 }
+
+/* Стиль для ссылки с картинкой-логотипом */
+.image-logo {
+    display: inline-block;
+    line-height: 0; /* убирает лишний отступ под картинкой */
+    transition: transform 0.2s, filter 0.2s;
+}
+
+.image-logo img {
+    height: 60px;        /* регулируйте под свой логотип */
+    width: auto;
+    display: block;
+    border: none;
+}
+
+.image-logo:hover {
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
+}
