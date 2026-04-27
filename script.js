@@ -375,3 +375,63 @@ function initMobileMenu() {
     transform: scale(1.02);
     filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
 }
+
+/* ===== БОКОВАЯ ПАНЕЛЬ ===== */
+.sidebar {
+    width: 280px;
+    background: rgba(18, 23, 27, 0.85); /* Полупрозрачный фон */
+    backdrop-filter: blur(12px);        /* Эффект размытия */
+    border-right: 1px solid rgba(42, 37, 51, 0.5);
+    padding: 2rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 10;
+}
+
+/* Заголовок раздела */
+.nav-category {
+    margin-bottom: 2rem; /* Увеличиваем отступ между группами */
+}
+
+.nav-category h3 {
+    font-family: 'Algeria Two', 'Cinzel', serif;
+    font-size: 0.8rem;   /* Чуть меньше, чем обычно */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #8e869e;
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+    font-weight: 500;
+}
+
+/* Список ссылок */
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-list li {
+    margin-bottom: 0.2rem;
+}
+
+.nav-list a {
+    display: block;
+    padding: 0.6rem 1rem;          /* Увеличиваем область клика */
+    border-radius: 8px;              /* Скругленные углы */
+    font-family: 'Inkulinati', 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    color: #cbc3d4;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+/* Эффект при наведении */
+.nav-list a:hover {
+    background-color: rgba(212, 175, 55, 0.15); /* Подсветка золотым цветом */
+    color: #d4af37;
+    padding-left: 1.2rem;
+}
