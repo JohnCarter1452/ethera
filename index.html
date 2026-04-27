@@ -259,7 +259,8 @@
 </div>
 
 <script>
-    const dataRoot = '/ethera/data/';
+    const basePath = window.location.pathname.replace(/\/$/, '');
+    const dataRoot = '/data/';
     let contentCache = {};
     let searchIndex = [];
 
