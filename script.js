@@ -24,6 +24,8 @@ function getCategoryTitleRu(cat) {
         'factions': 'Фракции',
         'geography': 'География',
         'artifacts': 'Артефакты',
+        'equipment': 'Снаряжение',
+        'backgrounds': 'Предыстории',
         'bestiary': 'Бестиарий',
         'lore': 'Лор и история',
         'religions': 'Религии',
