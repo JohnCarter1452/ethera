@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('popstate', handleRoute);
 });
 
+document.getElementById('backButton').addEventListener('click', () => {
+    history.back();
+});
+
 // ---------- ОБЩИЕ ФУНКЦИИ ----------
 function getCategoryTitleRu(cat) {
     const titles = {
