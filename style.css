@@ -41,16 +41,18 @@ a:hover {
 /* ---------- SIDEBAR ---------- */
 .sidebar {
     width: 280px;
-    background: #121017;
-    border-right: 1px solid #2a2533;
+    background: var(--bg-sidebar);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(42, 37, 51, 0.5);
     padding: 2rem 1rem;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
+    /* Убираем sticky */
+    /* position: sticky; */
+    /* top: 0; */
+    /* Убираем собственную прокрутку */
+    /* height: 100vh; */
+    /* overflow-y: auto; */
     transition: transform 0.3s ease;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
+    z-index: 10;
 }
 
 .sidebar h2 {
