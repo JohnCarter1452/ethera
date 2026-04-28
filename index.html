@@ -5,20 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Хроники Этеры — энциклопедия мира</title>
     
-    <!-- Шрифты (рекомендую заменить на локальные, если myfonts.ru нестабилен) -->
-    <link href="https://myfonts.ru/myfonts?fonts=algeria-two" rel="stylesheet" type="text/css">
-    <link href="https://myfonts.ru/myfonts?fonts=inkulinati" rel="stylesheet" type="text/css">
+    <!-- Локальные шрифты (убедитесь, что файлы лежат в /ethera/fonts/) -->
+    <style>
+        @font-face {
+            font-family: 'Algeria One';
+            src: url('/ethera/fonts/Algeria_One.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Algeria Two';
+            src: url('/ethera/fonts/Algeria_Two.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Inkulinati';
+            src: url('/ethera/fonts/Inkulinati.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+    </style>
+    
+    <!-- Резервные шрифты -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome 6 (иконки) -->
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Marked (рендеринг Markdown) -->
+    <!-- Marked -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
-        /* ---------- ПЕРЕМЕННЫЕ ЭФИРНОЙ ГАММЫ (ЦИАН/БИРЮЗА) ---------- */
+        /* ---------- ПЕРЕМЕННЫЕ ЭФИРНОЙ ГАММЫ (ЦВЕТА) ---------- */
         :root {
-            --ether-primary: #00cccc;      /* основной циан */
+            --ether-primary: #00cccc;      /* основной циан (яркий) */
             --ether-secondary: #00ccad;    /* бирюзовый */
             --ether-dark: #00ccaa;         /* тёмный для посещённых ссылок */
             --ether-glow: rgba(0, 255, 255, 0.3);
@@ -26,26 +49,6 @@
             --bg-dark: #0a0c12;
             --bg-sidebar: rgba(18, 23, 27, 0.85);
         }
-        
-         /* Шрифт для заголовков */
-@font-face {
-    font-family: 'Algeria One';
-    src: url('/ethera/fonts/Algeria_One.ttf') format('ttf'),
-         url('/ethera/fonts/Algeria_One.ttf') format('ttf');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-/* Шрифт для основного текста */
-@font-face {
-    font-family: 'Algeria Two';
-    src: url('/ethera/fonts/Algeria_Two.ttf') format('ttf'),
-         url('/ethera/fonts/Algeria_Two.ttf') format('ttf');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
         
         /* ---------- СБРОС И ОБЩИЕ СТИЛИ ---------- */
         * {
@@ -309,7 +312,7 @@
             color: #6a627c;
         }
         
-        /* ---------- АДАПТИВНОСТЬ ---------- */
+        /* Адаптивность */
         @media (max-width: 800px) {
             .sidebar {
                 position: fixed;
@@ -421,10 +424,9 @@
     const dataRoot = '/ethera/data/';
     const baseUrl = '/ethera';
     let contentCache = {};
-    let searchIndex = null;          // будет массивом объектов { title, url, snippet }
+    let searchIndex = null;
     let searchIndexBuilt = false;
 
-    // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
     function getCategoryTitleRu(cat) {
         const titles = {
             'classes': 'Классы', 'peoples': 'Народы', 'factions': 'Фракции',
@@ -442,7 +444,6 @@
         return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
     }
 
-    // ---------- ПОСТРОЕНИЕ ПОИСКОВОГО ИНДЕКСА (динамически, при первом поиске) ----------
     async function buildSearchIndex() {
         if (searchIndexBuilt) return;
         const container = document.getElementById('dynamicContent');
@@ -484,7 +485,6 @@
         container.innerHTML = originalContent;
     }
 
-    // ---------- ЗАГРУЗКА КАТАЛОГА (список статей) ----------
     async function loadCategoryIndex(category) {
         const container = document.getElementById('dynamicContent');
         container.innerHTML = '<div class="loading">Загрузка каталога...</div>';
@@ -532,7 +532,6 @@
         }
     }
 
-    // ---------- ЗАГРУЗКА КОНКРЕТНОЙ СТАТЬИ ----------
     async function loadContent(category, slug) {
         const container = document.getElementById('dynamicContent');
         const cacheKey = `${category}/${slug}`;
@@ -562,7 +561,6 @@
         }
     }
 
-    // ---------- ГЛАВНАЯ СТРАНИЦА ----------
     async function loadMainPage() {
         const container = document.getElementById('dynamicContent');
         container.innerHTML = '<div class="loading">Загрузка...</div>';
@@ -580,7 +578,6 @@
         }
     }
 
-    // ---------- ПОИСК (с построением индекса) ----------
     async function performSearch(query) {
         if (!searchIndexBuilt) await buildSearchIndex();
         const container = document.getElementById('dynamicContent');
@@ -619,7 +616,6 @@
         });
     }
 
-    // ---------- НАВИГАЦИЯ, РОУТИНГ ----------
     function handleRoute() {
         const hash = window.location.hash.slice(1);
         if (!hash || hash === '') {
@@ -652,11 +648,9 @@
             e.preventDefault();
             loadMainPage();
         });
-        // Кнопка назад
         document.getElementById('backButton')?.addEventListener('click', () => {
             history.back();
         });
-        // Поиск
         const searchInput = document.getElementById('searchInput');
         searchInput?.addEventListener('keypress', async (e) => {
             if (e.key === 'Enter') {
@@ -679,11 +673,11 @@
         });
     }
 
-    // ---------- СТАРТ ----------
     initNavigation();
     initMobileMenu();
     handleRoute();
     window.addEventListener('popstate', handleRoute);
 </script>
 </body>
+</html>
 </html>
