@@ -439,3 +439,190 @@ function initMobileMenu() {
     color: #d4af37;
     padding-left: 1.2rem;
 }
+
+// ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ПОИСКА ----------
+function simpleStem(word) {
+    // Простой стемминг для русского языка: удаление окончаний
+    const suffixes = [
+        'ая', 'яя', 'ее', 'ие', 'ые', 'ое', 'ей', 'ий', 'ой', 'ый',
+        'ую', 'юю', 'ую', 'яю', 'ем', 'им', 'ом', 'ам', 'ям', 'ах', 'ях',
+        'а', 'я', 'е', 'и', 'й', 'ь', 'о', 'у', 'ю', 'ы'
+    ];
+    let stem = word.toLowerCase();
+    for (let suffix of suffixes) {
+        if (stem.endsWith(suffix)) {
+            stem = stem.slice(0, -suffix.length);
+            break;
+        }
+    }
+    if (stem.length < 2) stem = word.toLowerCase();
+    return stem;
+}
+
+function tokenize(text) {
+    // Разбиваем текст на слова, удаляем знаки препинания и приводим к нижнему регистру
+    return text.toLowerCase().match(/\b[\wа-яё]+\b/gu) || [];
+}
+
+function highlightWords(text, words) {
+    // Выделение найденных слов жирным в сниппете
+    let result = text;
+    for (let w of words) {
+        const regex = new RegExp(`(${w})`, 'gi');
+        result = result.replace(regex, '<strong>$1</strong>');
+    }
+    return result;
+}
+
+// ---------- КЭШИРОВАНИЕ ИНДЕКСА ----------
+const STORAGE_KEY = 'etherea_search_index';
+const STORAGE_VERSION = 'v1';
+
+async function buildSearchIndex() {
+    if (searchIndexBuilt) return;
+    
+    // Проверяем localStorage
+    const cached = localStorage.getItem(STORAGE_KEY);
+    if (cached) {
+        try {
+            const data = JSON.parse(cached);
+            if (data.version === STORAGE_VERSION && data.index && data.index.length) {
+                searchIndex = data.index;
+                searchIndexBuilt = true;
+                console.log('Индекс загружен из кэша');
+                return;
+            }
+        } catch(e) {}
+    }
+    
+    const container = document.getElementById('dynamicContent');
+    const originalContent = container.innerHTML;
+    container.innerHTML = '<div class="loading">Построение индекса поиска...</div>';
+    
+    const categories = [
+        'classes', 'peoples', 'factions', 'geography', 'artifacts',
+        'bestiary', 'backgrounds', 'lore', 'religions', 'rules', 'ether_rules', 'gm_tools'
+    ];
+    const index = [];
+    
+    for (const cat of categories) {
+        try {
+            const catalogUrl = `${dataRoot}${cat}/catalog.json`;
+            const resp = await fetch(catalogUrl);
+            if (resp.ok) {
+                const files = await resp.json();
+                for (let file of files) {
+                    let slug = file.endsWith('.md') ? file.slice(0, -3) : file;
+                    const articleUrl = `${dataRoot}${cat}/${slug}.md`;
+                    const articleResp = await fetch(articleUrl);
+                    if (articleResp.ok) {
+                        const markdown = await articleResp.text();
+                        const title = markdown.match(/^#\s+(.*)/m)?.[1] || slug;
+                        // Убираем markdown разметку для сниппета
+                        const plainText = markdown.replace(/[#*`\[\]()]/g, '').substring(0, 500);
+                        index.push({
+                            title: title,
+                            url: `#${cat}/${slug}`,
+                            snippet: plainText,
+                            words: tokenize(title + ' ' + plainText)
+                        });
+                    }
+                }
+            }
+        } catch(e) { console.warn(`Ошибка индексации для ${cat}`, e); }
+    }
+    
+    searchIndex = index;
+    searchIndexBuilt = true;
+    // Сохраняем в localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        version: STORAGE_VERSION,
+        index: searchIndex
+    }));
+    container.innerHTML = originalContent;
+}
+
+// ---------- УЛУЧШЕННЫЙ ПОИСК С РАНЖИРОВАНИЕМ ----------
+async function performSearch(query) {
+    if (!query.trim()) return;
+    if (!searchIndexBuilt) await buildSearchIndex();
+    
+    const container = document.getElementById('dynamicContent');
+    if (!searchIndex || searchIndex.length === 0) {
+        container.innerHTML = `<div class="entry-header"><h1>Поиск</h1></div><div class="entry-content"><p>Не удалось построить индекс. Попробуйте позже.</p></div>`;
+        return;
+    }
+    
+    // Разбиваем запрос на слова и применяем стемминг
+    const queryWords = tokenize(query);
+    const queryStems = queryWords.map(w => simpleStem(w));
+    
+    // Для каждой статьи считаем релевантность (количество совпадений)
+    const resultsWithScore = [];
+    for (const item of searchIndex) {
+        let score = 0;
+        const matchedWords = [];
+        for (let qs of queryStems) {
+            for (let term of item.words) {
+                if (term.includes(qs) || qs.includes(term)) {
+                    score++;
+                    matchedWords.push(qs);
+                    break;
+                }
+            }
+        }
+        if (score > 0) {
+            resultsWithScore.push({ ...item, score, matchedWords });
+        }
+    }
+    
+    // Сортируем по убыванию релевантности
+    resultsWithScore.sort((a,b) => b.score - a.score);
+    
+    if (resultsWithScore.length === 0) {
+        container.innerHTML = `<div class="entry-header"><h1>Поиск: "${escapeHtml(query)}"</h1></div>
+                               <div class="entry-content"><p>Ничего не найдено.</p></div>`;
+        return;
+    }
+    
+    // Формируем результаты, выделяя найденные слова
+    let html = `<div class="entry-header"><h1>Результаты поиска: "${escapeHtml(query)}"</h1></div>
+                <div class="list-grid">`;
+    for (const res of resultsWithScore) {
+        let snippet = res.snippet.substring(0, 200) + '...';
+        // Выделяем найденные слова в сниппете
+        snippet = highlightWords(snippet, res.matchedWords);
+        html += `<div class="list-card" data-url="${res.url}">
+                    <h3>${escapeHtml(res.title)}</h3>
+                    <p>${snippet}</p>
+                </div>`;
+    }
+    html += `</div>`;
+    container.innerHTML = html;
+    
+    // Обработчики кликов по карточкам
+    document.querySelectorAll('.list-card[data-url]').forEach(card => {
+        card.addEventListener('click', () => {
+            const url = card.getAttribute('data-url');
+            if (url) {
+                window.location.hash = url.replace('#', '');
+                handleRoute();
+            }
+        });
+    });
+}
+
+// ---------- ОБНОВЛЁННАЯ НАСТРОЙКА ПОИСКА (debounce) ----------
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    let debounceTimeout;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimeout);
+        const query = e.target.value.trim();
+        if (!query) return;
+        debounceTimeout = setTimeout(() => {
+            performSearch(query);
+        }, 300);
+    });
+}
