@@ -369,3 +369,18 @@ a:hover {
 a:active {
     color: #7bc3f0; /* эфирно-голубой */
 }
+
+.back-button {
+    background: none;
+    border: none;
+    color: var(--ether-primary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    transition: transform 0.2s, color 0.2s;
+    margin-right: 1rem;
+}
+.back-button:hover {
+    color: var(--ether-secondary);
+    transform: scale(1.1);
+}
