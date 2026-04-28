@@ -132,6 +132,24 @@
             margin: -2rem -2rem 2rem -2rem;
             width: calc(100% + 4rem);
         }
+        .left-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--ether-primary);
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 0 0.5rem;
+            transition: transform 0.2s, color 0.2s;
+        }
+        .back-button:hover {
+            color: var(--ether-secondary);
+            transform: scale(1.1);
+        }
         .menu-toggle {
             display: none;
             background: none;
@@ -352,16 +370,17 @@
     <main class="main-content">
         <div class="top-header">
             <div class="logo">
-                <h1>
-                    <a href="#" id="homeLink">
-                        <img src="/ethera/images/etherea-logo.png" alt="Хроники Этеры">
-                    </a>
-                </h1>
+                <h1><a href="#" id="homeLink"><img src="/ethera/images/etherea-logo.png" alt="Хроники Этеры"></a></h1>
             </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Поиск по энциклопедии..." autocomplete="off">
+            <div class="left-controls">
+                <button id="backButton" class="back-button" title="Назад (предыдущая страница)">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Поиск по энциклопедии..." autocomplete="off">
+                </div>
+                <button class="menu-toggle" id="menuToggle">☰</button>
             </div>
-            <button class="menu-toggle" id="menuToggle">☰</button>
         </div>
 
         <div id="dynamicContent">
@@ -378,12 +397,14 @@
 </div>
 
 <script>
-    // Конфигурация – пути к данным
+    // ---------- КОНФИГУРАЦИЯ ----------
     const dataRoot = '/ethera/data/';
     const baseUrl = '/ethera';
     let contentCache = {};
-    let searchIndex = [];
+    let searchIndex = null;          // будет массивом объектов { title, url, snippet }
+    let searchIndexBuilt = false;
 
+    // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
     function getCategoryTitleRu(cat) {
         const titles = {
             'classes': 'Классы', 'peoples': 'Народы', 'factions': 'Фракции',
@@ -401,6 +422,49 @@
         return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
     }
 
+    // ---------- ПОСТРОЕНИЕ ПОИСКОВОГО ИНДЕКСА (динамически, при первом поиске) ----------
+    async function buildSearchIndex() {
+        if (searchIndexBuilt) return;
+        const container = document.getElementById('dynamicContent');
+        const originalContent = container.innerHTML;
+        container.innerHTML = '<div class="loading">Построение индекса поиска...</div>';
+        
+        const categories = [
+            'classes', 'peoples', 'factions', 'geography', 'artifacts',
+            'bestiary', 'backgrounds', 'lore', 'religions', 'rules', 'ether_rules', 'gm_tools'
+        ];
+        const index = [];
+        
+        for (const cat of categories) {
+            try {
+                const catalogUrl = `${dataRoot}${cat}/catalog.json`;
+                const resp = await fetch(catalogUrl);
+                if (resp.ok) {
+                    const files = await resp.json();
+                    for (let file of files) {
+                        let slug = file.endsWith('.md') ? file.slice(0, -3) : file;
+                        const articleUrl = `${dataRoot}${cat}/${slug}.md`;
+                        const articleResp = await fetch(articleUrl);
+                        if (articleResp.ok) {
+                            const markdown = await articleResp.text();
+                            const title = markdown.match(/^#\s+(.*)/m)?.[1] || slug;
+                            const plainText = markdown.replace(/#/g, '').replace(/[\[\]\(\)\*\_]/g, '').substring(0, 300);
+                            index.push({
+                                title: title,
+                                url: `#${cat}/${slug}`,
+                                snippet: plainText
+                            });
+                        }
+                    }
+                }
+            } catch(e) { console.warn(`Ошибка индексации для ${cat}`, e); }
+        }
+        searchIndex = index;
+        searchIndexBuilt = true;
+        container.innerHTML = originalContent;
+    }
+
+    // ---------- ЗАГРУЗКА КАТАЛОГА (список статей) ----------
     async function loadCategoryIndex(category) {
         const container = document.getElementById('dynamicContent');
         container.innerHTML = '<div class="loading">Загрузка каталога...</div>';
@@ -440,14 +504,6 @@
                 history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
                 return;
             }
-            const catalogMdUrl = `${dataRoot}${category}/_catalog.md`;
-            const catalogMdResp = await fetch(catalogMdUrl);
-            if (catalogMdResp.ok) {
-                const html = marked.parse(await catalogMdResp.text());
-                container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div><div class="entry-content">${html}</div>`;
-                history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
-                return;
-            }
             container.innerHTML = `<div class="entry-header"><h1>${getCategoryTitleRu(category)}</h1></div>
                                     <div class="entry-content"><p>Нет статей. Добавьте <code>catalog.json</code> или <code>README.md</code> в папку <code>data/${category}/</code>.</p></div>`;
             history.pushState({ category, slug: 'index' }, '', `#${category}/index`);
@@ -456,6 +512,7 @@
         }
     }
 
+    // ---------- ЗАГРУЗКА КОНКРЕТНОЙ СТАТЬИ ----------
     async function loadContent(category, slug) {
         const container = document.getElementById('dynamicContent');
         const cacheKey = `${category}/${slug}`;
@@ -485,6 +542,7 @@
         }
     }
 
+    // ---------- ГЛАВНАЯ СТРАНИЦА ----------
     async function loadMainPage() {
         const container = document.getElementById('dynamicContent');
         container.innerHTML = '<div class="loading">Загрузка...</div>';
@@ -494,7 +552,7 @@
                 const html = marked.parse(await resp.text());
                 container.innerHTML = `<div class="entry-header"><h1>Хроники Этеры</h1></div><div class="entry-content">${html}</div>`;
             } else {
-                container.innerHTML = `<div class="entry-header"><h1>Добро пожаловать</h1></div><div class="entry-content"><p>Добро пожаловать в Этеру.</p></div>`;
+                container.innerHTML = `<div class="entry-header"><h1>Добро пожаловать</h1></div><div class="entry-content">...</div>`;
             }
             history.pushState({}, '', '#');
         } catch (err) {
@@ -502,6 +560,46 @@
         }
     }
 
+    // ---------- ПОИСК (с построением индекса) ----------
+    async function performSearch(query) {
+        if (!searchIndexBuilt) await buildSearchIndex();
+        const container = document.getElementById('dynamicContent');
+        if (!searchIndex || searchIndex.length === 0) {
+            container.innerHTML = `<div class="entry-header"><h1>Поиск</h1></div><div class="entry-content"><p>Не удалось построить индекс. Попробуйте позже.</p></div>`;
+            return;
+        }
+        const lowerQuery = query.toLowerCase();
+        const results = searchIndex.filter(item => 
+            item.title.toLowerCase().includes(lowerQuery) || 
+            item.snippet.toLowerCase().includes(lowerQuery)
+        );
+        if (results.length === 0) {
+            container.innerHTML = `<div class="entry-header"><h1>Поиск: "${escapeHtml(query)}"</h1></div>
+                                   <div class="entry-content"><p>Ничего не найдено.</p></div>`;
+            return;
+        }
+        let html = `<div class="entry-header"><h1>Результаты поиска: "${escapeHtml(query)}"</h1></div>
+                    <div class="list-grid">`;
+        for (const res of results) {
+            html += `<div class="list-card" data-url="${res.url}">
+                        <h3>${escapeHtml(res.title)}</h3>
+                        <p>${escapeHtml(res.snippet)}...</p>
+                    </div>`;
+        }
+        html += `</div>`;
+        container.innerHTML = html;
+        document.querySelectorAll('.list-card[data-url]').forEach(card => {
+            card.addEventListener('click', () => {
+                const url = card.getAttribute('data-url');
+                if (url) {
+                    window.location.hash = url.replace('#', '');
+                    handleRoute();
+                }
+            });
+        });
+    }
+
+    // ---------- НАВИГАЦИЯ, РОУТИНГ ----------
     function handleRoute() {
         const hash = window.location.hash.slice(1);
         if (!hash || hash === '') {
@@ -534,6 +632,19 @@
             e.preventDefault();
             loadMainPage();
         });
+        // Кнопка назад
+        document.getElementById('backButton')?.addEventListener('click', () => {
+            history.back();
+        });
+        // Поиск
+        const searchInput = document.getElementById('searchInput');
+        searchInput?.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (!query) return;
+                await performSearch(query);
+            }
+        });
     }
 
     function initMobileMenu() {
@@ -548,19 +659,9 @@
         });
     }
 
-    function setupSearch() {
-        const input = document.getElementById('searchInput');
-        input?.addEventListener('keypress', async (e) => {
-            if (e.key !== 'Enter') return;
-            const query = input.value.trim();
-            if (!query) return;
-            alert('Поиск пока упрощён – используйте навигацию.');
-        });
-    }
-
+    // ---------- СТАРТ ----------
     initNavigation();
     initMobileMenu();
-    setupSearch();
     handleRoute();
     window.addEventListener('popstate', handleRoute);
 </script>
